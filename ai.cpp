@@ -55,4 +55,54 @@ void printState(State s) {
          << s.c1 << "," << s.c2 << "," << s.c3 << "," << s.c4 << ")\n";
 }
 
+// generate next possible states
+vector<State> getNextStates(State s) {
+
+    vector<State> next;
+
+    // possible moves: right, left, up, down
+    vector<pair<int,int>> moves = {
+        {1,0}, {-1,0}, {0,1}, {0,-1}
+    };
+
+    for (auto m : moves) {
+
+        int nx = s.x + m.first;
+        int ny = s.y + m.second;
+
+        // check valid move
+        if (!isValid(nx, ny))
+            continue;
+
+        // if no fuel, cannot move
+        if (s.fuel == 0)
+            continue;
+
+        State ns = s;
+
+        // move to new position
+        ns.x = nx;
+        ns.y = ny;
+
+        // decrease fuel
+        ns.fuel--;
+
+        // fuel station (refill fuel)
+        if (nx == 4 && ny == 9) {
+            ns.fuel =20;
+        }
+
+        // coins locations
+        if (nx == 2 && ny == 2) ns.c1 = true;
+        if (nx == 3 && ny == 3) ns.c2 = true;
+        if (nx == 5 && ny == 7) ns.c3 = true;
+        if (nx == 6 && ny == 5) ns.c4 = true;
+
+        next.push_back(ns);
+    }
+
+    return next;
+}
+
+
 
