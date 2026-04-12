@@ -30,3 +30,29 @@ struct State {
     }
 };
 
+// check if we reached the goal
+bool isGoal(State s) {
+    return (s.x == 1 && s.y == 1 && s.c1 && s.c2 && s.c3 && s.c4);
+}
+
+// check if position is inside the grid and not blocked
+bool isValid(int x, int y) {
+
+    // grid limits
+    if (x < 1 || x > 6 && y < 1 || y > 9)
+        return false;
+
+    // blocked cells (black cells)
+    if (x == 4 && (y == 7 || y == 8))
+        return false;
+
+    return true;
+}
+
+// print state in simple way
+void printState(State s) {
+    cout << "(" << s.x << "," << s.y << "," << s.fuel << ","
+         << s.c1 << "," << s.c2 << "," << s.c3 << "," << s.c4 << ")\n";
+}
+
+
