@@ -24,7 +24,7 @@ struct State {
         this->c4 = c4;
     }
 
-    // this is needed for set (to avoid repeated states)
+    // this is needed for set
     bool operator<(const State& o) const {
         return tie(x,y,fuel,c1,c2,c3,c4) < tie(o.x,o.y,o.fuel,o.c1,o.c2,o.c3,o.c4);
     }
@@ -42,7 +42,7 @@ bool isValid(int x, int y) {
     if (x < 1 || x > 6 && y < 1 || y > 9)
         return false;
 
-    // blocked cells (black cells)
+    // blocked cells 
     if (x == 4 && (y == 7 || y == 8))
         return false;
 
@@ -87,7 +87,7 @@ vector<State> getNextStates(State s) {
         // decrease fuel
         ns.fuel--;
 
-        // fuel station (refill fuel)
+        // fuel station 
         if (nx == 4 && ny == 9) {
             ns.fuel =20;
         }
@@ -104,5 +104,47 @@ vector<State> getNextStates(State s) {
     return next;
 }
 
+// Breadth First Search
+void BFS(State start) {
+
+    queue<State> q;
+    set<State> visited;
+
+    q.push(start);
+
+    cout << "\n--- BFS ---\n";
+
+    while (!q.empty()) {
+
+        State cur = q.front();
+        q.pop();
+
+        // skip if already visited
+        if (visited.count(cur))
+            continue;
+
+        visited.insert(cur);
+
+        printState(cur);
+
+        // check goal
+        if (isGoal(cur)) {
+            cout << "Goal reached!\n";
+            return;
+        }
+
+        // add next states
+        for (auto s : getNextStates(cur)) {
+            q.push(s);
+        }
+    }
+}
 
 
+
+int main() {
+
+    // starting state
+    State start(5,8,6,false,false,false,false);
+     BFS(start);
+}
