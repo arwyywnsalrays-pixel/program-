@@ -139,7 +139,68 @@ void BFS(State start) {
         }
     }
 }
+// Depth First Search
+void DFS(State start) {
 
+    stack<State> st;
+    set<State> visited;
+
+    st.push(start);
+
+    cout << "\n--- DFS ---\n";
+
+    while (!st.empty()) {
+
+        State cur = st.top();
+        st.pop();
+
+        // skip if visited
+        if (visited.count(cur))
+            continue;
+
+        visited.insert(cur);
+
+        printState(cur);
+
+        // check goal
+        if (isGoal(cur)) {
+            cout << "Goal reached!\n";
+            return;
+        }
+
+        // add next states
+        for (auto s : getNextStates(cur)) {
+            st.push(s);
+        }
+    }
+}
+
+// Depth Limited Search (used in IDDFS)
+bool DLS(State cur, int depth, set<State>& visited) {
+
+    if (visited.count(cur))
+        return false;
+
+    visited.insert(cur);
+
+    printState(cur);
+
+    if (isGoal(cur)) {
+        cout << "Goal reached!\n";
+        return true;
+    }
+
+    // stop when depth = 0
+    if (depth == 0)
+        return false;
+
+    for (auto s : getNextStates(cur)) {
+        if (DLS(s, depth - 1, visited))
+            return true;
+    }
+
+    return false;
+}
 
 
 int main() {
@@ -147,4 +208,5 @@ int main() {
     // starting state
     State start(5,8,6,false,false,false,false);
      BFS(start);
+      DFS(start);
 }
