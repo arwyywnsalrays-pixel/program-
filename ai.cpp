@@ -4,6 +4,7 @@
 #include <stack>
 #include <set>
 #include <tuple>
+#include <fstream>
 
 using namespace std;
 
@@ -14,7 +15,7 @@ struct State {
     bool c1, c2, c3, c4; // coins
 
     // constructor
-    State(int x, int y, int fuel, bool c1, bool c2, bool c3, bool c4) {
+    State(int x=0, int y=0, int fuel=0, bool c1=false, bool c2=false, bool c3=false, bool c4=false) {
         this->x = x;
         this->y = y;
         this->fuel = fuel;
@@ -24,7 +25,7 @@ struct State {
         this->c4 = c4;
     }
 
-    // this is needed for set
+    // this is needed for set (to avoid repeated states)
     bool operator<(const State& o) const {
         return tie(x,y,fuel,c1,c2,c3,c4) < tie(o.x,o.y,o.fuel,o.c1,o.c2,o.c3,o.c4);
     }
@@ -39,10 +40,10 @@ bool isGoal(State s) {
 bool isValid(int x, int y) {
 
     // grid limits
-    if (x < 1 || x > 6 && y < 1 || y > 9)
+    if (x < 1 ||  x > 6 || y < 1 || y > 9)
         return false;
 
-    // blocked cells 
+    // blocked cells (black cells)
     if (x == 4 && (y == 7 || y == 8))
         return false;
 
@@ -71,7 +72,7 @@ vector<State> getNextStates(State s) {
         int ny = s.y + m.second;
 
         // check valid move
-        if (!isValid(nx, ny))
+        if (!isValid(nx, ny)||s.fuel <=0)
             continue;
 
         // if no fuel, cannot move
@@ -87,12 +88,13 @@ vector<State> getNextStates(State s) {
         // decrease fuel
         ns.fuel--;
 
-        // fuel station 
+        // fuel station (refill fuel)
         if (nx == 4 && ny == 9) {
             ns.fuel =20;
         }
 
         // coins locations
+        if (nx == 4 && ny == 9)ns.fuel = 20;
         if (nx == 2 && ny == 2) ns.c1 = true;
         if (nx == 3 && ny == 3) ns.c2 = true;
         if (nx == 5 && ny == 7) ns.c3 = true;
@@ -111,6 +113,7 @@ void BFS(State start) {
     set<State> visited;
 
     q.push(start);
+    int nodes =0;
 
     cout << "\n--- BFS ---\n";
 
@@ -124,12 +127,13 @@ void BFS(State start) {
             continue;
 
         visited.insert(cur);
+        nodes ++;
 
         printState(cur);
 
         // check goal
         if (isGoal(cur)) {
-            cout << "Goal reached!\n";
+            cout << "Goal reached!\n"<<nodes<<endl;
             return;
         }
 
@@ -139,11 +143,13 @@ void BFS(State start) {
         }
     }
 }
+
 // Depth First Search
 void DFS(State start) {
 
     stack<State> st;
     set<State> visited;
+     int nodes = 0;
 
     st.push(start);
 
@@ -159,12 +165,13 @@ void DFS(State start) {
             continue;
 
         visited.insert(cur);
+        nodes ++;
 
-        printState(cur);
+       // printState(cur);
 
         // check goal
         if (isGoal(cur)) {
-            cout << "Goal reached!\n";
+            cout << "Goal reached!"<<nodes<<endl;
             return;
         }
 
@@ -183,7 +190,7 @@ bool DLS(State cur, int depth, set<State>& visited) {
 
     visited.insert(cur);
 
-    printState(cur);
+   // printState(cur);
 
     if (isGoal(cur)) {
         cout << "Goal reached!\n";
@@ -202,11 +209,51 @@ bool DLS(State cur, int depth, set<State>& visited) {
     return false;
 }
 
+// Iterative Deepening DFS
+void IDDFS(State start) {
+
+    cout <<
+    "\n--- IDDFS ---\n";
+
+    for (int depth = 0; depth <= 50; depth++) {
+
+        cout << "\nDepth = " << depth << endl;
+
+        set<State> visited;
+
+        if (DLS(start, depth, visited)) {
+            cout << "Solved at depth: " << depth << endl;
+            return;
+        }
+    }
+}
 
 int main() {
 
-    // starting state
-    State start(5,8,6,false,false,false,false);
-     BFS(start);
-      DFS(start);
+    ifstream file("input.txt");
+    if(!file){
+        cout<<"Error:create'input.txt'first!\n";
+        return 1;
+    }
+    int x,y,f,c1,c2,c3,c4;
+    while (file>> x>> y>> f >> c1 >> c2 >> c3 >> c4)
+    {
+        State start(x,y,f,(c1 ==1),(c2 ==1),(c3 ==1),(c4 ==1));
+        cout<<"\n>>>Testing State:(" <<x <<","<<y<<")Fuel: " <<f<<endl;
+
+    
+    
+
+
+    
+
+    BFS(start);
+    DFS(start);
+    IDDFS(start);
+    cout<<"----------------"<<endl;
+}
+file.close();
+
+
+    return 0;
 }
